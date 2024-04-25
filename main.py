@@ -1,24 +1,32 @@
 from collections import deque
 from heapq import heappush, heappop 
 
+
+
 def shortest_shortest_path(graph, source):
-    distances = {vertex: (float('infinity'), 0) for vertex in graph}
-    distances[source] = (0, 0)
-    pq = [(0, 0, source)]
+    pq = [(0.0, 0, source)]  
+    visited = set()
+    results = {vertex: (float('infinity'), 0) for vertex in graph}
+    results[source] = (0.0, 0) 
 
     while pq:
-        current_distance, edges, current_vertex = heappop(pq)
-        if current_distance > distances[current_vertex][0]:
+        distance, edge_count, vertex = heapq.heappop(pq)
+        if vertex in visited:
             continue
+        visited.add(vertex)
 
-        for neighbor, weight in graph[current_vertex]:
-            distance = current_distance + weight
-            edge_count = edges + 1
-            if distance < distances[neighbor][0] or (distance == distances[neighbor][0] and edge_count < distances[neighbor][1]):
-                distances[neighbor] = (distance, edge_count)
-                heappush(pq, (distance, edge_count, neighbor))
+        for neighbor, weight in graph.get(vertex, []):
+            if neighbor not in visited:
+                new_distance = distance + weight
+                new_edge_count = edge_count + 1
+                
+                if new_distance < results.get(neighbor, (float('infinity'), 0))[0] or \
+                   (new_distance == results.get(neighbor, (float('infinity'), 0))[0] and new_edge_count < results.get(neighbor, (float('infinity'), 0))[1]):
+                    results[neighbor] = (new_distance, new_edge_count)
+                    heapq.heappush(pq, (new_distance, new_edge_count, neighbor))
 
-    return distances
+    return results
+
 
 def bfs_path(graph, source):
     parents = {source: None}
